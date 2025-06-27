@@ -25,7 +25,7 @@ Follow these steps to get the project running on your local machine.
 
 **1. Clone the Repository**
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/adeebkhans/StudentManagementExe
 cd student-enroll-app
 ```
 
@@ -33,7 +33,7 @@ cd student-enroll-app
 Install the necessary dependencies for the root, frontend, and backend.
 ```bash
 # Install root dependencies (Electron, etc.)
-npm install
+npm install --save-dev electron electron-builder concurrently wait-on
 
 # Install frontend dependencies
 cd frontend
@@ -93,3 +93,5 @@ Converting a web app to an Electron app involves a few critical configuration ch
 *   **Asset Paths:** When referencing images or other assets in your React components, use relative paths (e.g., `./logo.png`) instead of absolute paths (e.g., `/logo.png`). This ensures they are found correctly within the packaged Electron app.
 
 *   **Debugging:** If you encounter issues, check the console output of the Electron app for error messages. Common problems include incorrect file paths, missing environment variables, or issues with native Node.js modules.
+*   
+*   **Run in Terminal:** If you encounter issues, try running app through the terminal. In dist\win-unpacked run ./myapp.exe then it will show logs of running the app
