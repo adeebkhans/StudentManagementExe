@@ -23,7 +23,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
-console.log(`Connecting to MongoDB at: ${MONGODB_URI}`); 
 mongoose.connect(MONGODB_URI); 
 mongoose.connection.on('connected', () => {
     console.log('MongoDB connected');
