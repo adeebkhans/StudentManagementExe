@@ -1,0 +1,24 @@
+{
+  "first": {
+    "subjects": [
+      { "name": "COMMUNITY HEALTH NURSING (T)" },
+      { "name": "HEALTH PROMOTION (T)" },
+      { "name": "PRIMARY HEALTH CARE NURSING (T)" },
+      { "name": "CHILD HEALTH NURSING (T)" }
+    ],
+    "practicals": [
+        { "name": "COMMUNITY HEALTH NURSING AND HEALTH PROMOTION (P)" },
+        { "name": "CHILD HEALTH NURSING (P)" }
+    ]
+  },
+  "second": {
+    "subjects": [
+      { "name": "MIDWIFERY (T)" },
+      { "name": "HEALTH CENTER MANAGEMENT (T)" }
+    ],
+    "practicals": [
+        { "name": "MIDWIFERY (P)" },
+        { "name": "PRIMARY HEALTH CARE NURSING AND HEALTH CENTER MANAGEMENT (P)" }
+    ]
+  }
+}
