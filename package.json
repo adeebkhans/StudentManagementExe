@@ -1,0 +1,43 @@
+{
+  "name": "ssip-student-enroll-app",
+  "version": "1.0.0",
+  "description": "A student enrollment desktop application",
+  "author": "Adeeb Khan",
+  "main": "main.js",
+  "scripts": {
+    "dev": "concurrently \"npm:start-backend\" \"npm:start-frontend\" \"electron .\"",
+    "start-frontend": "cd frontend && npm run dev",
+    "start-backend": "cd backend && node index.js",
+    "build-react": "cd frontend && npm run build",
+    "build": "npm run build-react && electron-builder"
+  },
+  "build": {
+    "appId": "com.ssip.enroll",
+    "productName": "SSIP Student Enrollment",
+    "icon": "frontend/dist/logo.png",
+    "files": [
+      "main.js",
+      "backend/**/*",
+      "frontend/dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/node_modules",
+        "to": "node_modules",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "frontend/dist/logo.png"
+    }
+  }
+}
