@@ -35,13 +35,14 @@ export const getAllResults = async (params = {}) => {
 };
 
 // Get results by student id (with optional query params like year)
-export const getResultsByStudentId = async (studentId, params = {}) => {
-  const query = new URLSearchParams(params).toString();
-  const res = await axios.get(
-    `${BASE_URL}/result/student/${studentId}${query ? `?${query}` : ""}`,
-    { headers: { ...getAuthHeader() },  }
+export const getResultsByStudentId = async (studentId) => {
+  if (!studentId || typeof studentId !== "string") throw new Error("Invalid studentId");
+  const res = await fetch(
+    `${BASE_URL}/result/student/${encodeURIComponent(studentId)}`,
+    { headers: { ...getAuthHeader() } }
   );
-  return res.data;
+  if (!res.ok) throw new Error("Failed to fetch results by student");
+  return res.json();
 };
 
 // Get result by result document id

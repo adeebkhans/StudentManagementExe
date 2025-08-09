@@ -43,12 +43,14 @@ export const getAllStudents = async (query = {}) => {
 };
 
 // Get student by ID
-export const getStudentById = async (id) => {
-  const res = await axios.get(
-    `${BASE_URL}/students/${id}`,
-    { headers: { ...getAuthHeader() }, withCredentials: true }
+export const getStudentById = async (studentId) => {
+  if (!studentId || typeof studentId !== "string") throw new Error("Invalid studentId");
+  const res = await fetch(
+    `${BASE_URL}/students/${encodeURIComponent(studentId)}`,
+    { headers: { ...getAuthHeader() } }
   );
-  return res.data;
+  if (!res.ok) throw new Error("Failed to fetch student");
+  return res.json();
 };
 
 // Update student by ID
