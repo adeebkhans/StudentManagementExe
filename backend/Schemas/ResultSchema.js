@@ -66,7 +66,17 @@ const resultSchema = new Schema({
     practicals: [
         {
             name: { type: String, required: false },
-            marks: { type: Number, required: false, min: 0, max: 100 }
+            marks: {
+                viva: { type: Number, required: false, min: 0, max: 50 },
+                file: { type: Number, required: false, min: 0, max: 25 },
+                labAttendence: { type: Number, required: false, min: 0, max: 25 },
+                totalOutOf100: { 
+                    type: Number,
+                    required: false,
+                    min: 0,
+                    max: 100
+                }
+            }
         }
     ],
 
@@ -76,7 +86,7 @@ const resultSchema = new Schema({
     }
 });
 
-// Automatically calculate outOf5 and totalOutOf25 before saving
+// Automatically calculate outOf5, totalOutOf25, and totalOutOf100 before saving
 resultSchema.pre("save", function(next) {
     if (this.subjects && Array.isArray(this.subjects)) {
         this.subjects.forEach(subject => {
@@ -97,6 +107,19 @@ resultSchema.pre("save", function(next) {
             subject.marks.totalOutOf25 = Math.round(ct1_5 + ct2_5 + assignment + extraCurricular + attendance);
         });
     }
+
+    // Calculate total marks for practicals
+    if (this.practicals && Array.isArray(this.practicals)) {
+        this.practicals.forEach(practical => {
+            if (practical.marks) {
+                const viva = practical.marks.viva || 0;
+                const file = practical.marks.file || 0;
+                const labAttendence = practical.marks.labAttendence || 0;
+                practical.marks.totalOutOf100 = viva + file + labAttendence;
+            }
+        });
+    }
+
     next();
 });
 
