@@ -79,11 +79,21 @@ async function CreateUpdateResult(req, res) {
                 if (!prac.name) return;
                 let existing = result.practicals.find(p => p.name === prac.name);
                 if (existing) {
-                    if (typeof prac.marks === "number") existing.marks = prac.marks;
+
+                    if (prac.marks && typeof prac.marks === 'object') {
+                        existing.marks = {
+                            ...existing.marks,
+                            ...prac.marks
+                        };
+                    }
                 } else {
                     result.practicals.push({
                         name: prac.name,
-                        marks: prac.marks
+                        marks: {
+                            viva: prac.marks?.viva || 0,
+                            file: prac.marks?.file || 0,
+                            labAttendence: prac.marks?.labAttendence || 0
+                        }
                     });
                 }
             });
@@ -249,6 +259,9 @@ async function exportResults(req, res) {
             'Assignment',
             'Extra Curricular',
             'Attendance',
+            'Viva/50',
+            'File/25',
+            'Lab Attendance/25',
             'Max Marks',
             'Total Marks'
         ];
@@ -330,14 +343,24 @@ async function exportResults(req, res) {
                         assignment,
                         extraCurricular,
                         attendance,
+                        '', '', '', // Empty cells for practical marks
                         25,
                         totalMarks
                     );
                 } else if (item.type === 'practical') {
+                    const viva = item.data?.marks?.viva ?? '';
+                    const file = item.data?.marks?.file ?? '';
+                    const labAttendence = item.data?.marks?.labAttendence ?? '';
+                    
+                    const totalPracticalMarks = (viva || 0) + (file || 0) + (labAttendence || 0);
+
                     rowData.push(
-                        '', '', '', '', '', '', '', // subject fields
+                        '', '', '', '', '', '', '', // Empty cells for subject marks
+                        viva,
+                        file,
+                        labAttendence,
                         100,
-                        item.data?.marks ?? ''
+                        totalPracticalMarks
                     );
                 }
 
@@ -480,15 +503,24 @@ async function updateResultBySubject(req, res) {
                 }
             }
 
-            // Update or add practical
+            // Update or add practical with new structure
             if (practical && practical.name) {
                 let existing = result.practicals.find(p => p.name === practical.name);
                 if (existing) {
-                    if (typeof practical.marks === "number") existing.marks = practical.marks;
+                    if (practical.marks && typeof practical.marks === 'object') {
+                        existing.marks = {
+                            ...existing.marks,
+                            ...practical.marks
+                        };
+                    }
                 } else {
                     result.practicals.push({
                         name: practical.name,
-                        marks: practical.marks
+                        marks: {
+                            viva: practical.marks?.viva || 0,
+                            file: practical.marks?.file || 0,
+                            labAttendence: practical.marks?.labAttendence || 0
+                        }
                     });
                 }
             }
