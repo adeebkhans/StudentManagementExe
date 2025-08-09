@@ -57,7 +57,11 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
               const existing = result.practicals?.find(p => p.name === prac.name);
               return {
                 name: prac.name,
-                marks: existing?.marks ?? ""
+                marks: {
+                  viva: existing?.marks?.viva ?? "",
+                  file: existing?.marks?.file ?? "",
+                  labAttendence: existing?.marks?.labAttendence ?? ""
+                }
               };
             })
           );
@@ -84,7 +88,11 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
           setFormPracticals(
             yearPracticals.map(prac => ({
               name: prac.name,
-              marks: ""
+              marks: {
+                viva: "",
+                file: "",
+                labAttendence: ""
+              }
             }))
           );
         }
@@ -106,7 +114,11 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
         setFormPracticals(
           yearPracticals.map(prac => ({
             name: prac.name,
-            marks: ""
+            marks: {
+              viva: "",
+              file: "",
+              labAttendence: ""
+            }
           }))
         );
       }
@@ -135,11 +147,17 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
   };
 
   // Handle practical marks change
-  const handlePracticalMarksChange = (idx, value) => {
+  const handlePracticalMarksChange = (idx, field, value) => {
     setFormPracticals(prev =>
       prev.map((prac, i) =>
         i === idx
-          ? { ...prac, marks: value }
+          ? {
+              ...prac,
+              marks: {
+                ...prac.marks,
+                [field]: value
+              }
+            }
           : prac
       )
     );
@@ -156,7 +174,10 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
       data.subjects = formSubjects
         .filter(sub =>
           (sub.marks.ct1.outOf75 !== "" && sub.marks.ct1.outOf75 !== undefined) ||
-          (sub.marks.ct2.outOf75 !== "" && sub.marks.ct2.outOf75 !== undefined)
+          (sub.marks.ct2.outOf75 !== "" && sub.marks.ct2.outOf75 !== undefined) ||
+          (sub.marks.otherMarks.assignment !== "" && sub.marks.otherMarks.assignment !== undefined) ||
+          (sub.marks.otherMarks.extraCurricular !== "" && sub.marks.otherMarks.extraCurricular !== undefined) ||
+          (sub.marks.otherMarks.attendance !== "" && sub.marks.otherMarks.attendance !== undefined)
         )
         .map(sub => ({
           name: sub.name,
@@ -173,10 +194,18 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
     }
     if (assessment === "practical") {
       data.practicals = formPracticals
-        .filter(prac => prac.marks !== "" && prac.marks !== undefined)
+        .filter(prac => 
+          (prac.marks.viva !== "" && prac.marks.viva !== undefined) ||
+          (prac.marks.file !== "" && prac.marks.file !== undefined) ||
+          (prac.marks.labAttendence !== "" && prac.marks.labAttendence !== undefined)
+        )
         .map(prac => ({
           name: prac.name,
-          marks: Number(prac.marks)
+          marks: {
+            viva: prac.marks.viva !== "" ? Number(prac.marks.viva) : 0,
+            file: prac.marks.file !== "" ? Number(prac.marks.file) : 0,
+            labAttendence: prac.marks.labAttendence !== "" ? Number(prac.marks.labAttendence) : 0
+          }
         }));
     }
     return data;
@@ -210,7 +239,7 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
 
   return (
     <form
-      className="bg-white rounded shadow p-6 max-w-2xl mx-auto"
+      className="bg-white rounded shadow p-6 max-w-4xl mx-auto"
       onSubmit={handleSubmit}
       onKeyDown={e => {
         if (e.key === "Enter" && e.target.tagName === "INPUT") {
@@ -264,7 +293,7 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
         </div>
       </div>
 
-      {/* Theory Subjects - vertical layout */}
+      {/* Theory Subjects */}
       {assessment === "theory" && (
         <div className="mb-4">
           <h3 className="font-semibold mb-2">Theory Subjects</h3>
@@ -401,7 +430,7 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
         </div>
       )}
 
-      {/* Practicals - vertical layout */}
+      {/* Practicals - updated for new structure */}
       {assessment === "practical" && (
         <div className="mb-4">
           <h3 className="font-semibold mb-2">Practicals</h3>
@@ -410,30 +439,88 @@ const ResultForm = ({ studentId, session, onSuccess }) => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="px-3 py-2 border">Practical</th>
-                  <th className="px-3 py-2 border">Marks (out of 100)</th>
+                  <th className="px-3 py-2 border">Viva (out of 50)</th>
+                  <th className="px-3 py-2 border">File (out of 25)</th>
+                  <th className="px-3 py-2 border">Lab Attendance (out of 25)</th>
+                  <th className="px-3 py-2 border">Total (out of 100)</th>
                 </tr>
               </thead>
               <tbody>
-                {formPracticals.map((prac, idx) => (
-                  <tr key={prac.name}>
-                    <td className="border px-3 py-2 font-medium">{prac.name}</td>
-                    <td className="border px-3 py-2">
-                      <input
-                        type="number"
-                        min={0}
-                        max={100}
-                        className="border px-2 py-1 rounded w-24"
-                        value={prac.marks}
-                        onChange={e =>
-                          handlePracticalMarksChange(
-                            idx,
-                            clampWithError(e.target.value, 0, 100).value
-                          )
-                        }
-                      />
-                    </td>
-                  </tr>
-                ))}
+                {formPracticals.map((prac, idx) => {
+                  const viva = Number(prac.marks.viva) || 0;
+                  const file = Number(prac.marks.file) || 0;
+                  const labAttendence = Number(prac.marks.labAttendence) || 0;
+                  const total = viva + file + labAttendence;
+                  
+                  return (
+                    <tr key={prac.name}>
+                      <td className="border px-3 py-2 font-medium">{prac.name}</td>
+                      <td className="border px-3 py-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={50}
+                          className={`border px-2 py-1 rounded w-20 ${inputErrors[`viva-${idx}`] ? "border-red-500" : ""}`}
+                          value={prac.marks.viva}
+                          onChange={e => {
+                            const { value, error } = clampWithError(e.target.value, 0, 50);
+                            handlePracticalMarksChange(idx, "viva", value);
+                            setInputErrors(prev => ({
+                              ...prev,
+                              [`viva-${idx}`]: error
+                            }));
+                          }}
+                        />
+                        {inputErrors[`viva-${idx}`] && (
+                          <div className="text-xs text-red-500 mt-1">Value must be between 0 and 50</div>
+                        )}
+                      </td>
+                      <td className="border px-3 py-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={25}
+                          className={`border px-2 py-1 rounded w-20 ${inputErrors[`file-${idx}`] ? "border-red-500" : ""}`}
+                          value={prac.marks.file}
+                          onChange={e => {
+                            const { value, error } = clampWithError(e.target.value, 0, 25);
+                            handlePracticalMarksChange(idx, "file", value);
+                            setInputErrors(prev => ({
+                              ...prev,
+                              [`file-${idx}`]: error
+                            }));
+                          }}
+                        />
+                        {inputErrors[`file-${idx}`] && (
+                          <div className="text-xs text-red-500 mt-1">Value must be between 0 and 25</div>
+                        )}
+                      </td>
+                      <td className="border px-3 py-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={25}
+                          className={`border px-2 py-1 rounded w-20 ${inputErrors[`labAttendence-${idx}`] ? "border-red-500" : ""}`}
+                          value={prac.marks.labAttendence}
+                          onChange={e => {
+                            const { value, error } = clampWithError(e.target.value, 0, 25);
+                            handlePracticalMarksChange(idx, "labAttendence", value);
+                            setInputErrors(prev => ({
+                              ...prev,
+                              [`labAttendence-${idx}`]: error
+                            }));
+                          }}
+                        />
+                        {inputErrors[`labAttendence-${idx}`] && (
+                          <div className="text-xs text-red-500 mt-1">Value must be between 0 and 25</div>
+                        )}
+                      </td>
+                      <td className="border px-3 py-2 text-center font-semibold">
+                        {total}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

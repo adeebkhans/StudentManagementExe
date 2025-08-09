@@ -64,7 +64,8 @@ const Result = () => {
 
   // Handle view result details
   const handleViewResult = (studentId) => {
-    navigate(`/result/${studentId}`);
+    if (typeof studentId !== "string" || !studentId) return;
+    navigate(`/result-details/${studentId}`);
   };
 
   // Export Excel handler
