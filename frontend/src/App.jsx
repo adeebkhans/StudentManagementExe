@@ -84,7 +84,7 @@ function App() {
             }
           />
           <Route
-            path="/result/:studentId"
+            path="/result-details/:studentId"
             element={
               <ProtectedRoute>
                 <ResultDetails />

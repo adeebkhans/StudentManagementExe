@@ -193,7 +193,7 @@ const Dashboard = () => {
             <footer className="absolute bottom-0 left-0 w-full p-4 text-center z-20">
                 <div className="group inline-block bg-gray-700/50 text-white/70 text-xs font-mono px-3 py-1 rounded-full cursor-pointer backdrop-blur-sm transition-all hover:bg-gray-800/60 hover:text-white">
                     <span className="group-hover:hidden">Having a problem?</span>
-                    <span className="hidden group-hover:inline">Contact the developer: +91 123456780</span>
+                    <span className="hidden group-hover:inline">Contact the developer: +91 </span>
                 </div>
             </footer>
         </div>

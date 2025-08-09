@@ -63,8 +63,12 @@ const ResultSubjectWise = () => {
                             }
                         } else if (subjectType === "practical" && subjectName) {
                             const prac = (result.practicals || []).find(p => p.name === subjectName);
-                            if (prac) {
-                                newMarksData[stu._id] = { marks: prac.marks };
+                            if (prac && prac.marks) {
+                                newMarksData[stu._id] = {
+                                    viva: prac.marks.viva || "",
+                                    file: prac.marks.file || "",
+                                    labAttendence: prac.marks.labAttendence || ""
+                                };
                             }
                         }
                     }
@@ -100,6 +104,7 @@ const ResultSubjectWise = () => {
         setMarksData(prev => {
             const prevMarks = prev[studentId] || {};
             let updated = { ...prevMarks };
+            
             if (subjectType === "subject") {
                 updated = {
                     ...updated,
@@ -108,7 +113,11 @@ const ResultSubjectWise = () => {
                         : clamped,
                 };
             } else {
-                updated = { marks: clamped };
+                // For practicals, update individual fields directly
+                updated = {
+                    ...updated,
+                    [field]: clamped
+                };
             }
             return { ...prev, [studentId]: updated };
         });
@@ -130,12 +139,14 @@ const ResultSubjectWise = () => {
             toast.error("Please fix errors before submitting.");
             return;
         }
+        
         const payload = students.map(stu => {
             const base = {
                 student: stu._id,
                 session: stu.session,
                 year,
             };
+            
             if (subjectType === "subject") {
                 return {
                     ...base,
@@ -145,15 +156,22 @@ const ResultSubjectWise = () => {
                     },
                 };
             } else {
+                // For practicals with new structure
+                const practicalMarks = marksData[stu._id] || {};
                 return {
                     ...base,
                     practical: {
                         name: subjectName,
-                        marks: marksData[stu._id]?.marks ?? "",
+                        marks: {
+                            viva: practicalMarks.viva || 0,
+                            file: practicalMarks.file || 0,
+                            labAttendence: practicalMarks.labAttendence || 0
+                        }
                     },
                 };
             }
         });
+        
         try {
             await updateResultSubjectwise(payload);
             toast.success("Results updated successfully!");
@@ -278,7 +296,11 @@ const ResultSubjectWise = () => {
                                                     <th className="px-3 py-2 border">Attendance (out of 5)</th>
                                                 </>
                                             ) : (
-                                                <th className="px-3 py-2 border">Marks (out of 100)</th>
+                                                <>
+                                                    <th className="px-3 py-2 border">Viva (out of 50)</th>
+                                                    <th className="px-3 py-2 border">File (out of 25)</th>
+                                                    <th className="px-3 py-2 border">lab Attendance (out of 25)</th>
+                                                </>
                                             )}
                                         </tr>
                                     </thead>
@@ -423,37 +445,91 @@ const ResultSubjectWise = () => {
                                                         </td>
                                                     </>
                                                 ) : (
-                                                    <td className="border px-3 py-2">
-                                                        <input
-                                                            type="number"
-                                                            min={0}
-                                                            max={100}
-                                                            className={`border px-2 py-1 rounded w-24 ${inputErrors[`practical-${stu._id}`] ? "border-red-500" : ""}`}
-                                                            value={marksData[stu._id]?.marks ?? ""}
-                                                            onChange={e =>
-                                                                isSubjectSelected
-                                                                    ? handleMarksChange(
-                                                                        stu._id,
-                                                                        "marks",
-                                                                        e.target.value,
-                                                                        null,
-                                                                        0,
-                                                                        100,
-                                                                        "practical"
-                                                                    )
-                                                                    : toast.error("Please select a subject/practical")
-                                                            }
-                                                            disabled={!isSubjectSelected}
-                                                        />
-                                                        {inputErrors[`practical-${stu._id}`] && (
-                                                            <div className="text-xs text-red-500 mt-1">Value must be between 0 and 100</div>
-                                                        )}
-                                                    </td>
+                                                    <>
+                                                        <td className="border px-3 py-2">
+                                                            <input
+                                                                type="number"
+                                                                min={0}
+                                                                max={50}
+                                                                className={`border px-2 py-1 rounded w-20 ${inputErrors[`viva-${stu._id}`] ? "border-red-500" : ""}`}
+                                                                value={marksData[stu._id]?.viva ?? ""}
+                                                                onChange={e =>
+                                                                    isSubjectSelected
+                                                                        ? handleMarksChange(
+                                                                            stu._id,
+                                                                            "viva",
+                                                                            e.target.value,
+                                                                            null,
+                                                                            0,
+                                                                            50,
+                                                                            "viva"
+                                                                        )
+                                                                        : toast.error("Please select a subject/practical")
+                                                                }
+                                                                disabled={!isSubjectSelected}
+                                                            />
+                                                            {inputErrors[`viva-${stu._id}`] && (
+                                                                <div className="text-xs text-red-500 mt-1">Value must be between 0 and 50</div>
+                                                            )}
+                                                        </td>
+                                                        <td className="border px-3 py-2">
+                                                            <input
+                                                                type="number"
+                                                                min={0}
+                                                                max={25}
+                                                                className={`border px-2 py-1 rounded w-20 ${inputErrors[`file-${stu._id}`] ? "border-red-500" : ""}`}
+                                                                value={marksData[stu._id]?.file ?? ""}
+                                                                onChange={e =>
+                                                                    isSubjectSelected
+                                                                        ? handleMarksChange(
+                                                                            stu._id,
+                                                                            "file",
+                                                                            e.target.value,
+                                                                            null,
+                                                                            0,
+                                                                            25,
+                                                                            "file"
+                                                                        )
+                                                                        : toast.error("Please select a subject/practical")
+                                                                }
+                                                                disabled={!isSubjectSelected}
+                                                            />
+                                                            {inputErrors[`file-${stu._id}`] && (
+                                                                <div className="text-xs text-red-500 mt-1">Value must be between 0 and 25</div>
+                                                            )}
+                                                        </td>
+                                                        <td className="border px-3 py-2">
+                                                            <input
+                                                                type="number"
+                                                                min={0}
+                                                                max={25}
+                                                                className={`border px-2 py-1 rounded w-20 ${inputErrors[`practical-${stu._id}`] ? "border-red-500" : ""}`}
+                                                                value={marksData[stu._id]?.practical ?? ""}
+                                                                onChange={e =>
+                                                                    isSubjectSelected
+                                                                        ? handleMarksChange(
+                                                                            stu._id,
+                                                                            "practical",
+                                                                            e.target.value,
+                                                                            null,
+                                                                            0,
+                                                                            25,
+                                                                            "practical"
+                                                                        )
+                                                                        : toast.error("Please select a subject/practical")
+                                                                }
+                                                                disabled={!isSubjectSelected}
+                                                            />
+                                                            {inputErrors[`practical-${stu._id}`] && (
+                                                                <div className="text-xs text-red-500 mt-1">Value must be between 0 and 25</div>
+                                                            )}
+                                                        </td>
+                                                    </>
                                                 )}
                                             </tr>
                                         )) : searched && (
                                             <tr>
-                                                <td colSpan={subjectType === "subject" ? 9 : 5} className="text-center py-4 text-gray-500 border">
+                                                <td colSpan={subjectType === "subject" ? 9 : 7} className="text-center py-4 text-gray-500 border">
                                                     No students found.
                                                 </td>
                                             </tr>
