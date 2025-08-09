@@ -105,14 +105,20 @@ const ResultDetails = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-3 py-2 border text-left">Practical</th>
-                  <th className="px-3 py-2 border">Marks/100</th>
+                  <th className="px-3 py-2 border">Viva/50</th>
+                  <th className="px-3 py-2 border">File/25</th>
+                  <th className="px-3 py-2 border">Lab Attendance/25</th>
+                  <th className="px-3 py-2 border">Total/100</th>
                 </tr>
               </thead>
               <tbody>
                 {result.practicals.map((practical, idx) => (
                   <tr key={practical._id} className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                     <td className="px-3 py-2 border font-medium">{practical.name}</td>
-                    <td className="px-3 py-2 border text-center font-semibold">{practical.marks ?? "-"}</td>
+                    <td className="px-3 py-2 border text-center">{practical.marks?.viva ?? "-"}</td>
+                    <td className="px-3 py-2 border text-center">{practical.marks?.file ?? "-"}</td>
+                    <td className="px-3 py-2 border text-center">{practical.marks?.labAttendence ?? "-"}</td>
+                    <td className="px-3 py-2 border text-center font-semibold">{practical.marks?.totalOutOf100 ?? "-"}</td>
                   </tr>
                 ))}
               </tbody>

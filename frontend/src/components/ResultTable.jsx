@@ -1,130 +1,218 @@
 import React from "react";
 
-const ResultTable = ({ results, onView }) => (
-  <div className="overflow-x-auto">
-    <table className="min-w-full border text-sm">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="px-3 py-2 border" rowSpan={2}>S.No.</th>
-          <th className="px-3 py-2 border" rowSpan={2}>Student Name</th>
-          <th className="px-3 py-2 border" rowSpan={2}>Enrollment</th>
-          <th className="px-3 py-2 border" rowSpan={2}>Session</th>
-          <th className="px-3 py-2 border" rowSpan={2}>Year</th>
-          <th className="px-3 py-2 border" colSpan={10}>Subjects & Practicals</th>
-          <th className="px-3 py-2 border" rowSpan={2}>Actions</th>
-        </tr>
-        <tr>
-          <th className="px-3 py-2 border">Name</th>
-          <th className="px-3 py-2 border">CT1/75</th>
-          <th className="px-3 py-2 border">CT1/5</th>
-          <th className="px-3 py-2 border">CT2/75</th>
-          <th className="px-3 py-2 border">CT2/5</th>
-          <th className="px-3 py-2 border">Assignment</th>
-          <th className="px-3 py-2 border">Extra Curricular</th>
-          <th className="px-3 py-2 border">Attendance</th>
-          <th className="px-3 py-2 border">Max Marks</th>
-          <th className="px-3 py-2 border">Total Marks</th>
-        </tr>
-      </thead>
-      <tbody>
-        {results.map((result, resultIdx) => {
-          // Combine subjects and practicals in order: subjects first, then practicals
-          const allItems = [
-            ...(result.subjects || []).map(subject => ({
-              type: 'subject',
-              data: subject
-            })),
-            ...(result.practicals || []).map(practical => ({
-              type: 'practical',
-              data: practical
-            }))
-          ];
+const ResultTable = ({ results, onEdit, onDelete, onView }) => {
+  if (!results || results.length === 0) {
+    return (
+      <div className="bg-white rounded shadow p-8 text-center">
+        <p className="text-gray-600">No results found.</p>
+      </div>
+    );
+  }
 
-          const totalRows = allItems.length || 1;
-
-          return allItems.length > 0 ? allItems.map((item, itemIdx) => {
-            const isLastRow = itemIdx === totalRows - 1;
-            return (
-              <tr
-                key={result._id + "-" + itemIdx}
-                className={isLastRow ? "border-b-2 border-gray-400" : ""}
-              >
-                {itemIdx === 0 && (
-                  <>
-                    <td className="border px-3 py-2" rowSpan={totalRows}>{resultIdx + 1}</td>
-                    <td className="border px-3 py-2" rowSpan={totalRows}>{result.student?.name}</td>
-                    <td className="border px-3 py-2" rowSpan={totalRows}>{result.student?.enrollment}</td>
-                    <td className="border px-3 py-2" rowSpan={totalRows}>{result.session}</td>
-                    <td className="border px-3 py-2" rowSpan={totalRows}>{result.year}</td>
-                  </>
-                )}
-                
-                {/* Name column */}
-                <td className="border px-3 py-2">{item.data?.name || ""}</td>
-                
-                {/* Subject-specific columns or empty for practicals */}
-                {item.type === 'subject' ? (
-                  <>
-                    <td className="border px-3 py-2">{item.data?.marks?.ct1?.outOf75 ?? ""}</td>
-                    <td className="border px-3 py-2">{item.data?.marks?.ct1?.outOf5 ?? ""}</td>
-                    <td className="border px-3 py-2">{item.data?.marks?.ct2?.outOf75 ?? ""}</td>
-                    <td className="border px-3 py-2">{item.data?.marks?.ct2?.outOf5 ?? ""}</td>
-                    <td className="border px-3 py-2">{item.data?.marks?.otherMarks?.assignment ?? ""}</td>
-                    <td className="border px-3 py-2">{item.data?.marks?.otherMarks?.extraCurricular ?? ""}</td>
-                    <td className="border px-3 py-2">{item.data?.marks?.otherMarks?.attendance ?? ""}</td>
-                    <td className="border px-3 py-2">25</td>
-                    <td className="border px-3 py-2">{item.data?.marks?.totalOutOf25 ?? ""}</td>
-                  </>
-                ) : (
-                  <>
-                    <td className="border px-3 py-2"></td>
-                    <td className="border px-3 py-2"></td>
-                    <td className="border px-3 py-2"></td>
-                    <td className="border px-3 py-2"></td>
-                    <td className="border px-3 py-2"></td>
-                    <td className="border px-3 py-2"></td>
-                    <td className="border px-3 py-2"></td>
-                    <td className="border px-3 py-2">100</td>
-                    <td className="border px-3 py-2">{item.data?.marks ?? ""}</td>
-                  </>
-                )}
-
-                {/* Actions only on first row */}
-                {itemIdx === 0 && (
-                  <td className="border px-3 py-2" rowSpan={totalRows}>
-                    <button 
-                      className="text-blue-600 hover:text-blue-800 font-medium" 
-                      onClick={() => onView(result.student?._id || result.student)}
-                    >
-                      View
-                    </button>
-                  </td>
-                )}
-              </tr>
-            );
-          }) : (
-            // Empty result case
-            <tr key={result._id}>
-              <td className="border px-3 py-2">{resultIdx + 1}</td>
-              <td className="border px-3 py-2">{result.student?.name}</td>
-              <td className="border px-3 py-2">{result.student?.enrollment}</td>
-              <td className="border px-3 py-2">{result.session}</td>
-              <td className="border px-3 py-2">{result.year}</td>
-              <td className="border px-3 py-2" colSpan={10}>No data</td>
-              <td className="border px-3 py-2">
-                <button 
-                  className="text-blue-600 hover:text-blue-800 font-medium" 
-                  onClick={() => onView(result.student?._id || result.student)}
-                >
-                  View
-                </button>
-              </td>
+  return (
+    <div className="bg-white rounded shadow overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Student
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Session
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Year
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Subject/Practical
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                CT1/75
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                CT1/5
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                CT2/75
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                CT2/5
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Assignment
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Extra Curricular
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Attendance
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Max Marks
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Total Marks
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Viva/50
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                File/25
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Lab Attendance/25
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  </div>
-);
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {results.map((result) => {
+              // Create rows for all subjects and practicals
+              const allItems = [
+                ...(result.subjects || []).map(subject => ({
+                  type: 'subject',
+                  data: subject
+                })),
+                ...(result.practicals || []).map(practical => ({
+                  type: 'practical',
+                  data: practical
+                }))
+              ];
+
+              return allItems.map((item, itemIndex) => (
+                <tr key={`${result._id}-${item.type}-${itemIndex}`} className="hover:bg-gray-50">
+                  {/* Student info - only show for first row */}
+                  {itemIndex === 0 ? (
+                    <>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" rowSpan={allItems.length}>
+                        <div>
+                          <div className="font-medium">{result.student?.name || 'N/A'}</div>
+                          <div className="text-gray-500">{result.student?.enrollment || 'N/A'}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" rowSpan={allItems.length}>
+                        {result.session}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" rowSpan={allItems.length}>
+                        {result.year === 'first' ? 'First Year' : 'Second Year'}
+                      </td>
+                    </>
+                  ) : null}
+
+                  {/* Subject/Practical name */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.data?.name || 'N/A'}
+                  </td>
+
+                  {/* Subject marks or empty cells for practicals */}
+                  {item.type === 'subject' ? (
+                    <>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.ct1?.outOf75 ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.ct1?.outOf5 ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.ct2?.outOf75 ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.ct2?.outOf5 ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.otherMarks?.assignment ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.otherMarks?.extraCurricular ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.otherMarks?.attendance ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-semibold">
+                        25
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-semibold">
+                        {item.data?.marks?.totalOutOf25 ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-semibold">
+                        100
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center font-semibold">
+                        {item.data?.marks?.totalOutOf100 ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.viva ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.file ?? '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {item.data?.marks?.labAttendence ?? '-'}
+                      </td>
+                    </>
+                  )}
+
+                  {/* Actions - only show for first row */}
+                  {itemIndex === 0 && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" rowSpan={allItems.length}>
+                      <div className="flex space-x-2">
+                        {onView && (
+                          <button
+                            onClick={() => {
+                              const id =
+                                typeof result.student === "string"
+                                  ? result.student
+                                  : result.student?._id;
+                              if (id) onView(id);
+                            }}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            View
+                          </button>
+                        )}
+                        {onEdit && (
+                          <button
+                            onClick={() => onEdit(result)}
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
+                            Edit
+                          </button>
+                        )}
+                        {onDelete && (
+                          <button
+                            onClick={() => onDelete(result)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ));
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
 
 export default ResultTable;
