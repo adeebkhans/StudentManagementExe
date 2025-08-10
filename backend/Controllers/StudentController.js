@@ -1,4 +1,5 @@
-const { cloudinary, getSignedAadhaarUrl } = require('../Utils/Cloudinary');
+// const { cloudinary, getSignedAadhaarUrl } = require('../Utils/Cloudinary'); // Aadhaar image disabled
+const { cloudinary, getSignedAadhaarUrl } = require('../Utils/Cloudinary'); // ...existing code...
 const Student = require('../Schemas/StudentSchema');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
@@ -86,6 +87,7 @@ exports.getStudentById = async (req, res) => {
             });
         }
 
+        // Aadhaar signed URL disabled
         // // Generate Aadhaar signed URL if Aadhaar image exists
         // let aadhaarSignedUrl = null;
         // if (student.aadharImage && student.aadharImage.public_id) {
@@ -174,17 +176,18 @@ exports.deleteStudent = async (req, res) => {
             });
         }
 
-        // Delete Aadhaar image from Cloudinary if exists
-        if (student.aadharImage && student.aadharImage.public_id) {
-            try {
-                await cloudinary.uploader.destroy(student.aadharImage.public_id, {
-                    resource_type: "image",
-                    type: "authenticated"
-                });
-            } catch (cloudErr) {
-                console.error("Cloudinary delete error:", cloudErr);
-            }
-        }
+        // Aadhaar Cloudinary deletion disabled
+        // // Delete Aadhaar image from Cloudinary if exists
+        // if (student.aadharImage && student.aadharImage.public_id) {
+        //     try {
+        //         await cloudinary.uploader.destroy(student.aadharImage.public_id, {
+        //             resource_type: "image",
+        //             type: "authenticated"
+        //         });
+        //     } catch (cloudErr) {
+        //         console.error("Cloudinary delete error:", cloudErr);
+        //     }
+        // }
 
         await Student.findByIdAndDelete(id);
 
@@ -203,8 +206,12 @@ exports.deleteStudent = async (req, res) => {
     }
 };
 
-// Aadhaar image upload
+// Aadhaar image upload disabled (kept as stub to avoid route errors)
 exports.uploadAadhaar = async (req, res) => {
+    return res.status(501).json({ success: false, message: "Aadhaar image upload disabled", data: null });
+
+    /*
+    // Original implementation (commented out)
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: "No file uploaded", data: null });
@@ -266,6 +273,7 @@ exports.uploadAadhaar = async (req, res) => {
         console.error("Aadhaar upload error:", err);
         res.status(500).json({ success: false, message: err.message, data: null });
     }
+    */
 };
 
 // Export all students to Excel
@@ -292,15 +300,16 @@ exports.exportStudents = async (req, res) => {
             { header: 'Parents Mobile', key: 'parentsMob', width: 15 },
             { header: 'Enrollment', key: 'enrollment', width: 20 },
             { header: 'Aadhar Card', key: 'aadharcard', width: 20 },
-            { header: 'Aadhaar Image', key: 'aadharImage', width: 30 },
+            // { header: 'Aadhaar Image', key: 'aadharImage', width: 30 }, // Aadhaar image column disabled
             { header: 'Course', key: 'course', width: 20 },
         ];
 
         // Add rows with S.No.
         students.forEach((student, idx) => {
-            const aadhaarUrl = student.aadharImage && student.aadharImage.secure_url
-                ? student.aadharImage.secure_url
-                : null;
+            // const aadhaarUrl = student.aadharImage && student.aadharImage.secure_url
+            //     ? student.aadharImage.secure_url
+            //     : null; // Aadhaar URL disabled
+
             const row = worksheet.addRow({
                 sno: idx + 1,
                 name: student.name,
@@ -310,18 +319,18 @@ exports.exportStudents = async (req, res) => {
                 parentsMob: student.parentsMob,
                 aadharcard: student.aadharcard,
                 enrollment: student.enrollment || 'N/A',
-                aadharImage: aadhaarUrl ? 'View Aadhaar' : 'N/A',
+                // aadharImage: aadhaarUrl ? 'View Aadhaar' : 'N/A', // disabled
                 course: student.course || 'N/A'
             });
 
-            // If Aadhaar URL exists, set hyperlink
-            if (aadhaarUrl) {
-                row.getCell('aadharImage').value = {
-                    text: 'View Aadhaar',
-                    hyperlink: aadhaarUrl
-                };
-                row.getCell('aadharImage').font = { color: { argb: 'FF0000FF' }, underline: true };
-            }
+            // If Aadhaar URL exists, set hyperlink (disabled)
+            // if (aadhaarUrl) {
+            //     row.getCell('aadharImage').value = {
+            //         text: 'View Aadhaar',
+            //         hyperlink: aadhaarUrl
+            //     };
+            //     row.getCell('aadharImage').font = { color: { argb: 'FF0000FF' }, underline: true };
+            // }
         });
 
         // Set response headers

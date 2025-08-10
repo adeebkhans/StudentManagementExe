@@ -18,14 +18,15 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
             <th className="px-4 py-2 border">Enrollment</th>
             <th className="px-4 py-2 border">Session</th>
             <th className="px-4 py-2 border">Aadhaar No.</th>
-            <th className="px-4 py-2 border text-center">Aadhaar</th>
+            {/* <th className="px-4 py-2 border text-center">Aadhaar</th> */}
             <th className="px-4 py-2 border">Actions</th>
           </tr>
         </thead>
         <tbody>
           {students.length === 0 ? (
             <tr>
-              <td colSpan={11} className="text-center py-4">
+              {/* <td colSpan={11} className="text-center py-4"> */}
+              <td colSpan={10} className="text-center py-4">
                 No students found.
               </td>
             </tr>
@@ -45,7 +46,7 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
                     <span className="text-gray-400">N/A</span>
                   )}
                 </td>
-                <td className="px-4 py-2 border text-center">
+                {/* <td className="px-4 py-2 border text-center">
                   {student.aadharImage && student.aadharImage.secure_url ? (
                     <a
                       href={student.aadharImage.secure_url}
@@ -63,7 +64,7 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
                       Upload Aadhaar
                     </button>
                   )}
-                </td>
+                </td> */}
                 <td className="px-4 py-2 border">
                   <div className="flex gap-2 justify-center">
                     {!readOnly && (
