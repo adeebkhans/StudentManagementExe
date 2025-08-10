@@ -31,16 +31,17 @@ const StudentSchema = new mongoose.Schema({
         required: false
     },
 
-    aadharImage: {
-        public_id: {
-            type: String,
-            required: false
-        },
-        secure_url: {
-            type: String,
-            required: false
-        }
-    },
+    // Aadhaar image disabled
+    // aadharImage: {
+    //     public_id: {
+    //         type: String,
+    //         required: false
+    //     },
+    //     secure_url: {
+    //         type: String,
+    //         required: false
+    //     }
+    // },
     
     enrollment: {
         type: String,
