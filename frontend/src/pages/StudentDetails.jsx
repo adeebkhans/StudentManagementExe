@@ -64,6 +64,7 @@ const StudentDetails = () => {
             <div className="mb-2"><strong>Enrollment:</strong> {student.enrollment || "N/A"}</div>
             <div className="mb-2"><strong>Course:</strong> {student.course || "N/A"}</div>
             <div className="mb-2"><strong>Aadhaar No.:</strong> {student.aadharcard || "N/A"}</div>
+            {/* Aadhaar Image upload/view disabled
             <div className="mb-4">
               <strong>Aadhaar Image:</strong><br />
               {student.aadharImage && student.aadharImage.secure_url ? (
@@ -82,6 +83,7 @@ const StudentDetails = () => {
                 </button>
               )}
             </div>
+            */}
             <div className="mt-6">
               <label className="block mb-2 font-medium text-red-700">
                 Type <span className="font-mono bg-gray-200 px-1">delete</span> to confirm deletion:

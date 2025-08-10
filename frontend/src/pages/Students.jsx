@@ -47,13 +47,15 @@ const Students = () => {
                 setMode(""); // Go back to main menu
                 toast.success("Student updated successfully!");
             } else {
-                // Add student and redirect to Aadhaar upload
+                // Add student (Aadhaar image upload flow disabled)
                 const res = await addStudent(formData);
                 const studentId = res.data?._id || res.data?.student?._id;
-                toast.success("Student created successfully! Please upload Aadhaar.");
+                // toast.success("Student created successfully! Please upload Aadhaar.");
                 if (studentId) {
-                    navigate(`/aadhaar-upload/${studentId}`);
+                    setMode(""); // Go back to main menu
+                    // navigate(`/aadhaar-upload/${studentId}`);
                 }
+                toast.success("Student created successfully!");
             }
         } catch (err) {
             toast.error(err?.response?.data?.message || "Failed to save student");
