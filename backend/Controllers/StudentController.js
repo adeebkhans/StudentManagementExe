@@ -294,25 +294,30 @@ exports.exportStudents = async (req, res) => {
         worksheet.columns = [
             { header: 'S.No.', key: 'sno', width: 8 },
             { header: 'Name', key: 'name', width: 20 },
+            { header: 'DOB', key: 'dob', width: 15 },
             { header: 'Father Name', key: 'fathername', width: 20 },
             { header: 'Mother Name', key: 'mothername', width: 20 },
             { header: 'Student Mobile', key: 'studentMob', width: 15 },
             { header: 'Parents Mobile', key: 'parentsMob', width: 15 },
             { header: 'Enrollment', key: 'enrollment', width: 20 },
             { header: 'Aadhar Card', key: 'aadharcard', width: 20 },
-            // { header: 'Aadhaar Image', key: 'aadharImage', width: 30 }, // Aadhaar image column disabled
+            // { header: 'Aadhaar Image', key: 'aadharImage', width: 30 }, // disabled
             { header: 'Course', key: 'course', width: 20 },
         ];
 
-        // Add rows with S.No.
         students.forEach((student, idx) => {
             // const aadhaarUrl = student.aadharImage && student.aadharImage.secure_url
             //     ? student.aadharImage.secure_url
             //     : null; // Aadhaar URL disabled
 
+            const dobStr = student.dob
+                ? student.dob.toISOString().split('T')[0] // YYYY-MM-DD
+                : 'N/A';
+
             const row = worksheet.addRow({
                 sno: idx + 1,
                 name: student.name,
+                dob: dobStr,
                 fathername: student.fathername,
                 mothername: student.mothername,
                 studentMob: student.studentMob,
