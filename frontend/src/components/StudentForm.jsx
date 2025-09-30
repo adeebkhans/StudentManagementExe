@@ -10,6 +10,7 @@ const sessionOptions = Array.from({ length: 10 }, (_, i) => {
 
 const emptyForm = {
   name: "",
+  dob: "",            // Added
   fathername: "",
   mothername: "",
   studentMob: "",
@@ -29,6 +30,7 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
       initialData && Object.keys(initialData).length > 0
         ? {
             name: initialData.name || "",
+            dob: initialData.dob ? initialData.dob.substring(0, 10) : "", // Normalize to YYYY-MM-DD
             fathername: initialData.fathername || "",
             mothername: initialData.mothername || "",
             studentMob: initialData.studentMob || "",
@@ -61,7 +63,11 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
       alert("Aadhar Card Number must be exactly 12 digits.");
       return;
     }
-    onSubmit(form);
+    const payload = {
+      ...form,
+      dob: form.dob ? form.dob : undefined, // send only if provided
+    };
+    onSubmit(payload);
   };
 
   return (
@@ -78,6 +84,14 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded"
             required
+          />
+          <input
+            type="date"
+            name="dob"
+            placeholder="DOB"
+            value={form.dob}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
           />
           <input
             name="fathername"
@@ -140,14 +154,13 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded"
           />
-          <input
-            name="course"
-            placeholder="Course (optional)"
-            value={form.course}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-          />
-          {/* Session Dropdown */}
+            <input
+              name="course"
+              placeholder="Course (optional)"
+              value={form.course}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded"
+            />
           <select
             name="session"
             value={form.session}

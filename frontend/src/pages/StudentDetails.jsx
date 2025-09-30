@@ -57,6 +57,12 @@ const StudentDetails = () => {
         ) : student ? (
           <div className="bg-white rounded shadow p-6">
             <div className="mb-2"><strong>Name:</strong> {student.name}</div>
+            <div className="mb-2">
+              <strong>DOB:</strong>{" "}
+              {student.dob
+                ? new Date(student.dob).toISOString().split("T")[0]
+                : "N/A"}
+            </div>
             <div className="mb-2"><strong>Father Name:</strong> {student.fathername}</div>
             <div className="mb-2"><strong>Mother Name:</strong> {student.mothername}</div>
             <div className="mb-2"><strong>Student Mobile:</strong> {student.studentMob}</div>

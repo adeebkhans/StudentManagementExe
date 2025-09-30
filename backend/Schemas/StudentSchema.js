@@ -5,6 +5,11 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    
+    dob: {
+        type: Date,
+        required: false
+    },
 
     fathername: {
         type: String,

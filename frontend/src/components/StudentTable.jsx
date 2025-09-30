@@ -11,6 +11,7 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
           <tr>
             <th className="px-4 py-2 border">S. No.</th>
             <th className="px-4 py-2 border">Name</th>
+            <th className="px-4 py-2 border">DOB</th> {/* Added */}
             <th className="px-4 py-2 border">Father</th>
             <th className="px-4 py-2 border">Mother</th>
             <th className="px-4 py-2 border">Student Mob</th>
@@ -25,8 +26,8 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
         <tbody>
           {students.length === 0 ? (
             <tr>
-              {/* <td colSpan={11} className="text-center py-4"> */}
-              <td colSpan={10} className="text-center py-4">
+              {/* Adjusted colSpan for new DOB column */}
+              <td colSpan={11} className="text-center py-4">
                 No students found.
               </td>
             </tr>
@@ -35,6 +36,11 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
               <tr key={student._id}>
                 <td className="px-4 py-2 border">{idx + 1}</td>
                 <td className="px-4 py-2 border">{student.name}</td>
+                <td className="px-4 py-2 border">
+                  {student.dob
+                    ? new Date(student.dob).toISOString().split("T")[0]
+                    : "N/A"}
+                </td>
                 <td className="px-4 py-2 border">{student.fathername}</td>
                 <td className="px-4 py-2 border">{student.mothername}</td>
                 <td className="px-4 py-2 border">{student.studentMob}</td>
@@ -42,29 +48,9 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
                 <td className="px-4 py-2 border">{student.enrollment}</td>
                 <td className="px-4 py-2 border">{student.session || "N/A"}</td>
                 <td className="px-4 py-2 border text-center">
-                  {student.aadharcard || (
-                    <span className="text-gray-400">N/A</span>
-                  )}
+                  {student.aadharcard || <span className="text-gray-400">N/A</span>}
                 </td>
-                {/* <td className="px-4 py-2 border text-center">
-                  {student.aadharImage && student.aadharImage.secure_url ? (
-                    <a
-                      href={student.aadharImage.secure_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline cursor-pointer"
-                    >
-                      View Aadhaar
-                    </a>
-                  ) : (
-                    <button
-                      className="text-red-600 underline cursor-pointer"
-                      onClick={() => navigate(`/aadhaar-upload/${student._id}`)}
-                    >
-                      Upload Aadhaar
-                    </button>
-                  )}
-                </td> */}
+                {/* Aadhaar image actions column still commented out */}
                 <td className="px-4 py-2 border">
                   <div className="flex gap-2 justify-center">
                     {!readOnly && (

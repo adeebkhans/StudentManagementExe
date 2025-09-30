@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import StudentTable from "../components/StudentTable";
 import StudentForm from "../components/StudentForm";
 import SearchStudents from "../components/SearchStudents";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Students = () => {
@@ -16,7 +16,7 @@ const Students = () => {
     const [mode, setMode] = useState(""); // "create", "update", "get"
     const [exporting, setExporting] = useState(false);
     const [studentSearchFilter, setStudentSearchFilter] = useState({});
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     useEffect(() => {
         if (mode === "update" || mode === "get") {
