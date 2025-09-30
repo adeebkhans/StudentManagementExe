@@ -39,7 +39,7 @@ exports.createStudent = async (req, res) => {
 exports.getAllStudents = async (req, res) => {
     try {
         const filter = {};
-        const { name, fathername, mothername, studentMob, parentsMob, session, enrollment, course, aadharcard } = req.query;
+        const { name, fathername, mothername, studentMob, parentsMob, session, enrollment, course, aadharcard, category } = req.query;
 
         if (name) filter.name = { $regex: name, $options: 'i' };
         if (fathername) filter.fathername = { $regex: fathername, $options: 'i' };
@@ -50,6 +50,7 @@ exports.getAllStudents = async (req, res) => {
         if (enrollment) filter.enrollment = { $regex: enrollment, $options: 'i' };
         if (course) filter.course = { $regex: course, $options: 'i' };
         if (aadharcard) filter.aadharcard = { $regex: aadharcard, $options: 'i' };
+        if (category) filter.category = { $regex: category, $options: 'i' };
 
         const students = await Student.find(filter).sort({ createdAt: -1 });
         res.status(200).json({
@@ -279,10 +280,21 @@ exports.uploadAadhaar = async (req, res) => {
 // Export all students to Excel
 exports.exportStudents = async (req, res) => {
     try {
-        // Optional session filter
-        const { session } = req.query;
+        // Support multiple filters including category
+        const { session, category, name, fathername, mothername, studentMob, parentsMob, enrollment, course, aadharcard } = req.query;
         const filter = {};
+        
+        // Apply all available filters
         if (session) filter.session = session;
+        if (category) filter.category = { $regex: category, $options: 'i' };
+        if (name) filter.name = { $regex: name, $options: 'i' };
+        if (fathername) filter.fathername = { $regex: fathername, $options: 'i' };
+        if (mothername) filter.mothername = { $regex: mothername, $options: 'i' };
+        if (studentMob) filter.studentMob = { $regex: studentMob, $options: 'i' };
+        if (parentsMob) filter.parentsMob = { $regex: parentsMob, $options: 'i' };
+        if (enrollment) filter.enrollment = { $regex: enrollment, $options: 'i' };
+        if (course) filter.course = { $regex: course, $options: 'i' };
+        if (aadharcard) filter.aadharcard = { $regex: aadharcard, $options: 'i' };
 
         // Sort students alphabetically by name
         const students = await Student.find(filter).sort({ name: 1 });
@@ -303,13 +315,10 @@ exports.exportStudents = async (req, res) => {
             { header: 'Aadhar Card', key: 'aadharcard', width: 20 },
             // { header: 'Aadhaar Image', key: 'aadharImage', width: 30 }, // disabled
             { header: 'Course', key: 'course', width: 20 },
+            { header: 'Category', key: 'category', width: 15 },
         ];
 
         students.forEach((student, idx) => {
-            // const aadhaarUrl = student.aadharImage && student.aadharImage.secure_url
-            //     ? student.aadharImage.secure_url
-            //     : null; // Aadhaar URL disabled
-
             const dobStr = student.dob
                 ? student.dob.toISOString().split('T')[0] // YYYY-MM-DD
                 : 'N/A';
@@ -324,19 +333,20 @@ exports.exportStudents = async (req, res) => {
                 parentsMob: student.parentsMob,
                 aadharcard: student.aadharcard,
                 enrollment: student.enrollment || 'N/A',
-                // aadharImage: aadhaarUrl ? 'View Aadhaar' : 'N/A', // disabled
-                course: student.course || 'N/A'
+                course: student.course || 'N/A',
+                category: student.category || 'N/A'
             });
-
-            // If Aadhaar URL exists, set hyperlink (disabled)
-            // if (aadhaarUrl) {
-            //     row.getCell('aadharImage').value = {
-            //         text: 'View Aadhaar',
-            //         hyperlink: aadhaarUrl
-            //     };
-            //     row.getCell('aadharImage').font = { color: { argb: 'FF0000FF' }, underline: true };
-            // }
         });
+
+        // Generate dynamic filename based on applied filters
+        let filename = 'students';
+        const filterParts = [];
+        if (session) filterParts.push(session);
+        if (category) filterParts.push(category);
+        if (filterParts.length > 0) {
+            filename += '_' + filterParts.join('_');
+        }
+        filename += '.xlsx';
 
         // Set response headers
         res.setHeader(
@@ -345,7 +355,7 @@ exports.exportStudents = async (req, res) => {
         );
         res.setHeader(
             'Content-Disposition',
-            `attachment; filename=students${session ? '-' + session : ''}.xlsx`
+            `attachment; filename=${filename}`
         );
 
         // Write workbook to response

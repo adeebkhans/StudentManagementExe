@@ -8,6 +8,15 @@ const sessionOptions = Array.from({ length: 10 }, (_, i) => {
   return `${start}-${end}`;
 });
 
+// Category options for filtering
+const categoryOptions = [
+  { value: "", label: "All Categories" },
+  { value: "GEN", label: "GEN (General)" },
+  { value: "OBC", label: "OBC" },
+  { value: "SC", label: "SC" },
+  { value: "ST", label: "ST" }
+];
+
 const searchFields = [
   { value: "name", label: "Name" },
   { value: "fathername", label: "Father Name" },
@@ -15,19 +24,22 @@ const searchFields = [
   { value: "studentMob", label: "Student Mobile" },
   { value: "parentsMob", label: "Parent Mobile" },
   { value: "enrollment", label: "Enrollment" },
-  { value: "aadharcard", label: "Aadhaar Card" }, 
+  { value: "aadharcard", label: "Aadhaar Card" },
+  { value: "course", label: "Course" }, // Added course field
 ];
 
 const SearchStudents = ({ onSearch }) => {
   const [field, setField] = useState("name");
   const [query, setQuery] = useState("");
   const [session, setSession] = useState("");
+  const [category, setCategory] = useState(""); // Added category state
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const searchParams = {};
     if (query && field) searchParams[field] = query;
     if (session) searchParams.session = session;
+    if (category) searchParams.category = category; // Added category to search params
     onSearch && onSearch(searchParams);
   };
 
@@ -57,6 +69,15 @@ const SearchStudents = ({ onSearch }) => {
         <option value="">All Sessions</option>
         {sessionOptions.map(opt => (
           <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
+      <select
+        className="border px-3 py-2 rounded cursor-pointer"
+        value={category}
+        onChange={e => setCategory(e.target.value)}
+      >
+        {categoryOptions.map(opt => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </select>
       <button

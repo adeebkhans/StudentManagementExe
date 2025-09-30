@@ -5,7 +5,7 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    
+
     dob: {
         type: Date,
         required: false
@@ -47,18 +47,23 @@ const StudentSchema = new mongoose.Schema({
     //         required: false
     //     }
     // },
-    
+
     enrollment: {
         type: String,
         required: false
     },
 
-    session:{
+    session: {
         type: String,
         required: true
     },
 
-    course:{
+    course: {
+        type: String,
+        required: false,
+    },
+
+    category: {
         type: String,
         required: false,
     }

@@ -11,7 +11,7 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
           <tr>
             <th className="px-4 py-2 border">S. No.</th>
             <th className="px-4 py-2 border">Name</th>
-            <th className="px-4 py-2 border">DOB</th> {/* Added */}
+            <th className="px-4 py-2 border">DOB</th>
             <th className="px-4 py-2 border">Father</th>
             <th className="px-4 py-2 border">Mother</th>
             <th className="px-4 py-2 border">Student Mob</th>
@@ -20,14 +20,14 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
             <th className="px-4 py-2 border">Session</th>
             <th className="px-4 py-2 border">Aadhaar No.</th>
             {/* <th className="px-4 py-2 border text-center">Aadhaar</th> */}
+            <th className="px-4 py-2 border">Category</th>
             <th className="px-4 py-2 border">Actions</th>
           </tr>
         </thead>
         <tbody>
           {students.length === 0 ? (
             <tr>
-              {/* Adjusted colSpan for new DOB column */}
-              <td colSpan={11} className="text-center py-4">
+              <td colSpan={12} className="text-center py-4">
                 No students found.
               </td>
             </tr>
@@ -50,7 +50,7 @@ const StudentTable = ({ students, onUpdate, readOnly }) => {
                 <td className="px-4 py-2 border text-center">
                   {student.aadharcard || <span className="text-gray-400">N/A</span>}
                 </td>
-                {/* Aadhaar image actions column still commented out */}
+                <td className="px-4 py-2 border">{student.category || "N/A"}</td>
                 <td className="px-4 py-2 border">
                   <div className="flex gap-2 justify-center">
                     {!readOnly && (

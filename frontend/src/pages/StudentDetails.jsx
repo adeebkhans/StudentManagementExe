@@ -69,6 +69,7 @@ const StudentDetails = () => {
             <div className="mb-2"><strong>Parents Mobile:</strong> {student.parentsMob}</div>
             <div className="mb-2"><strong>Enrollment:</strong> {student.enrollment || "N/A"}</div>
             <div className="mb-2"><strong>Course:</strong> {student.course || "N/A"}</div>
+            <div className="mb-2"><strong>Category:</strong> {student.category || "N/A"}</div>
             <div className="mb-2"><strong>Aadhaar No.:</strong> {student.aadharcard || "N/A"}</div>
             {/* Aadhaar Image upload/view disabled
             <div className="mb-4">
