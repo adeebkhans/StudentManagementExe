@@ -2,15 +2,23 @@ import React, { useState, useEffect } from "react";
 
 // Generate session options dynamically
 const sessionOptions = Array.from({ length: 10 }, (_, i) => {
-  // 2024-2026 then 2025-2027 so on..
   const start = 2024 + i;
   const end = start + 2;
   return `${start}-${end}`;
 });
 
+// Category options
+const categoryOptions = [
+  { value: "", label: "Select Category" },
+  { value: "GEN", label: "GEN (General)" },
+  { value: "OBC", label: "OBC" },
+  { value: "SC", label: "SC" },
+  { value: "ST", label: "ST" }
+];
+
 const emptyForm = {
   name: "",
-  dob: "",            // Added
+  dob: "",
   fathername: "",
   mothername: "",
   studentMob: "",
@@ -18,6 +26,7 @@ const emptyForm = {
   aadharcard: "",
   enrollment: "",
   course: "",
+  category: "",     
   session: "",
 };
 
@@ -30,7 +39,7 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
       initialData && Object.keys(initialData).length > 0
         ? {
             name: initialData.name || "",
-            dob: initialData.dob ? initialData.dob.substring(0, 10) : "", // Normalize to YYYY-MM-DD
+            dob: initialData.dob ? initialData.dob.substring(0, 10) : "",
             fathername: initialData.fathername || "",
             mothername: initialData.mothername || "",
             studentMob: initialData.studentMob || "",
@@ -38,6 +47,7 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
             aadharcard: initialData.aadharcard || "",
             enrollment: initialData.enrollment || "",
             course: initialData.course || "",
+            category: initialData.category || "", 
             session: initialData.session || "",
           }
         : emptyForm
@@ -71,10 +81,7 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white p-6 rounded shadow"
-    >
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <input
@@ -121,6 +128,18 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
             minLength={10}
             title="Enter a 10-digit mobile number"
           />
+          <select
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+          >
+            {categoryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="space-y-4">
           <input
@@ -154,13 +173,13 @@ const StudentForm = ({ onSubmit, initialData, loading }) => {
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded"
           />
-            <input
-              name="course"
-              placeholder="Course (optional)"
-              value={form.course}
-              onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
-            />
+          <input
+            name="course"
+            placeholder="Course (optional)"
+            value={form.course}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+          />
           <select
             name="session"
             value={form.session}
