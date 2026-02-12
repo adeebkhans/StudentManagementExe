@@ -52,7 +52,11 @@ exports.getAllStudents = async (req, res) => {
         if (aadharcard) filter.aadharcard = { $regex: aadharcard, $options: 'i' };
         if (category) filter.category = { $regex: category, $options: 'i' };
 
-        const students = await Student.find(filter).sort({ createdAt: -1 });
+        const students = await Student
+            .find(filter)
+            .sort({ name: 1 })
+            .collation({ locale: "en", strength: 2 }); // Case-insensitive sorting
+
         res.status(200).json({
             success: true,
             message: "Students fetched successfully",
@@ -283,7 +287,7 @@ exports.exportStudents = async (req, res) => {
         // Support multiple filters including category
         const { session, category, name, fathername, mothername, studentMob, parentsMob, enrollment, course, aadharcard } = req.query;
         const filter = {};
-        
+
         // Apply all available filters
         if (session) filter.session = session;
         if (category) filter.category = { $regex: category, $options: 'i' };
@@ -297,7 +301,9 @@ exports.exportStudents = async (req, res) => {
         if (aadharcard) filter.aadharcard = { $regex: aadharcard, $options: 'i' };
 
         // Sort students alphabetically by name
-        const students = await Student.find(filter).sort({ name: 1 });
+        const students = await Student.find(filter)
+            .sort({ name: 1 })
+            .collation({ locale: "en", strength: 2 }); // Case-insensitive sorting
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Students');

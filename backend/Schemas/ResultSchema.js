@@ -90,33 +90,44 @@ const resultSchema = new Schema({
 resultSchema.pre("save", function(next) {
     if (this.subjects && Array.isArray(this.subjects)) {
         this.subjects.forEach(subject => {
-            if (subject.marks && subject.marks.ct1) {
-                // Round to nearest integer
-                subject.marks.ct1.outOf5 = Math.round((subject.marks.ct1.outOf75 || 0) / 15);
+            if (!subject.marks || typeof subject.marks !== "object") {
+                subject.marks = {};
             }
-            if (subject.marks && subject.marks.ct2) {
-                subject.marks.ct2.outOf5 = Math.round((subject.marks.ct2.outOf75 || 0) / 15);
+            if (!subject.marks.ct1 || typeof subject.marks.ct1 !== "object") {
+                subject.marks.ct1 = {};
             }
+            if (!subject.marks.ct2 || typeof subject.marks.ct2 !== "object") {
+                subject.marks.ct2 = {};
+            }
+            if (!subject.marks.otherMarks || typeof subject.marks.otherMarks !== "object") {
+                subject.marks.otherMarks = {};
+            }
+
+            // Round up to next integer for ct1/ct2 outOf5
+            subject.marks.ct1.outOf5 = Math.ceil((subject.marks.ct1.outOf75 || 0) / 15);
+            subject.marks.ct2.outOf5 = Math.ceil((subject.marks.ct2.outOf75 || 0) / 15);
+
             // Calculate totalOutOf25: ct1.outOf5 + ct2.outOf5 + assignment + extraCurricular + attendance
-            const ct1_5 = subject.marks?.ct1?.outOf5 || 0;
-            const ct2_5 = subject.marks?.ct2?.outOf5 || 0;
-            const assignment = subject.marks?.otherMarks?.assignment || 0;
-            const extraCurricular = subject.marks?.otherMarks?.extraCurricular || 0;
-            const attendance = subject.marks?.otherMarks?.attendance || 0;
-            // Round to nearest integer
-            subject.marks.totalOutOf25 = Math.round(ct1_5 + ct2_5 + assignment + extraCurricular + attendance);
+            const ct1_5 = subject.marks.ct1.outOf5 || 0;
+            const ct2_5 = subject.marks.ct2.outOf5 || 0;
+            const assignment = subject.marks.otherMarks.assignment || 0;
+            const extraCurricular = subject.marks.otherMarks.extraCurricular || 0;
+            const attendance = subject.marks.otherMarks.attendance || 0;
+            // Round up to next integer
+            subject.marks.totalOutOf25 = Math.ceil(ct1_5 + ct2_5 + assignment + extraCurricular + attendance);
         });
     }
 
     // Calculate total marks for practicals
     if (this.practicals && Array.isArray(this.practicals)) {
         this.practicals.forEach(practical => {
-            if (practical.marks) {
-                const viva = practical.marks.viva || 0;
-                const file = practical.marks.file || 0;
-                const labAttendence = practical.marks.labAttendence || 0;
-                practical.marks.totalOutOf100 = viva + file + labAttendence;
+            if (!practical.marks || typeof practical.marks !== "object") {
+                practical.marks = {};
             }
+            const viva = practical.marks.viva || 0;
+            const file = practical.marks.file || 0;
+            const labAttendence = practical.marks.labAttendence || 0;
+            practical.marks.totalOutOf100 = viva + file + labAttendence;
         });
     }
 
