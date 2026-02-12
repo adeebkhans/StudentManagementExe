@@ -61,23 +61,31 @@ exports.getAllFees = async (req, res) => {
         if (name) studentFilter.name = { $regex: name, $options: "i" };
         if (enrollment) studentFilter.enrollment = { $regex: enrollment, $options: "i" };
 
-        let fees;
-        if (Object.keys(studentFilter).length > 0) {
-            // If filtering by student fields, find matching students first
-            const students = await require('../Schemas/StudentSchema').find(studentFilter).select('_id');
-            const studentIds = students.map(s => s._id);
-            if (studentIds.length === 0) {
-                // No students match, return empty result
-                return res.status(200).json({
-                    success: true,
-                    message: "Fee records fetched successfully. No matching students found.",
-                    data: []
-                });
-            }
-            feeFilter.student = { $in: studentIds };
+        const studentMatch = {};
+        if (name) studentMatch["student.name"] = { $regex: name, $options: "i" };
+        if (enrollment) studentMatch["student.enrollment"] = { $regex: enrollment, $options: "i" };
+
+        const pipeline = [
+            { $match: feeFilter },
+            {
+                $lookup: {
+                    from: "students",
+                    localField: "student",
+                    foreignField: "_id",
+                    as: "student"
+                }
+            },
+            { $unwind: "$student" }
+        ];
+
+        if (Object.keys(studentMatch).length > 0) {
+            pipeline.push({ $match: studentMatch });
         }
 
-        fees = await Fee.find(feeFilter).populate('student');
+        pipeline.push({ $sort: { "student.name": 1 } });
+
+        const fees = await Fee.aggregate(pipeline)
+            .collation({ locale: "en", strength: 2 });
         res.status(200).json({
             success: true,
             message: "Fee records fetched successfully",

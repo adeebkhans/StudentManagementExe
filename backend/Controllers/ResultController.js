@@ -114,10 +114,10 @@ async function CreateUpdateResult(req, res) {
 async function getAllResults(req, res) {
     try {
         const { session, year, enrollment, name } = req.query;
-        
+
         // Build the query object
         let query = {};
-        
+
         // Direct filters on Result model
         if (session) {
             query.session = { $regex: session, $options: 'i' }; // Case-insensitive partial match
@@ -126,29 +126,46 @@ async function getAllResults(req, res) {
             query.year = year; // Exact match for year (first/second)
         }
 
-        // For student-related filters, we'll use populate with match
-        let populateOptions = {
-            path: "student",
-            select: "name enrollment"
-        };
-
-        // If we have student-related filters, add match condition
-        if (enrollment || name) {
-            populateOptions.match = {};
-            if (enrollment) {
-                populateOptions.match.enrollment = { $regex: enrollment, $options: 'i' };
-            }
-            if (name) {
-                populateOptions.match.name = { $regex: name, $options: 'i' };
-            }
+        const studentMatch = {};
+        if (enrollment) {
+            studentMatch["student.enrollment"] = { $regex: enrollment, $options: 'i' };
+        }
+        if (name) {
+            studentMatch["student.name"] = { $regex: name, $options: 'i' };
         }
 
-        let results = await Result.find(query).populate(populateOptions);
-        
-        // Filter out results where student didn't match the populate criteria
-        if (enrollment || name) {
-            results = results.filter(result => result.student !== null);
+        const pipeline = [
+            { $match: query },
+            {
+                $lookup: {
+                    from: "students",
+                    localField: "student",
+                    foreignField: "_id",
+                    as: "student"
+                }
+            },
+            { $unwind: "$student" }
+        ];
+
+        if (Object.keys(studentMatch).length > 0) {
+            pipeline.push({ $match: studentMatch });
         }
+
+        pipeline.push(
+            { $sort: { "student.name": 1 } },
+            {
+                $project: {
+                    student: { name: 1, enrollment: 1 },
+                    session: 1,
+                    year: 1,
+                    subjects: 1,
+                    practicals: 1
+                }
+            }
+        );
+
+        const results = await Result.aggregate(pipeline)
+            .collation({ locale: "en", strength: 2 }); // Case-insensitive sorting
 
         return res.status(200).json({ results });
     } catch (err) {
@@ -192,7 +209,7 @@ async function getResultById(req, res) {
                 path: "student",
                 select: "name enrollment"
             })
-            .lean(); 
+            .lean();
         if (!result) {
             return res.status(404).json({ message: "Result not found" });
         }
@@ -271,7 +288,7 @@ async function exportResults(req, res) {
         // Style header
         const headerRow = worksheet.getRow(1);
         headerRow.font = { bold: true };
-        headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; 
+        headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
         headerRow.fill = {
             type: 'pattern',
             pattern: 'solid',
@@ -351,7 +368,7 @@ async function exportResults(req, res) {
                     const viva = item.data?.marks?.viva ?? '';
                     const file = item.data?.marks?.file ?? '';
                     const labAttendence = item.data?.marks?.labAttendence ?? '';
-                    
+
                     const totalPracticalMarks = (viva || 0) + (file || 0) + (labAttendence || 0);
 
                     rowData.push(
